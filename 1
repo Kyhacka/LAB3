@@ -1,0 +1,27 @@
+open System
+
+// Функция для ввода списка строк по отдельности
+let rec inputStrings () =
+    printfn "Введите строку (или нажмите Enter для завершения):"
+    let input = Console.ReadLine() // Чтение ввода
+    if String.IsNullOrEmpty(input) then
+        [] // Если ввод пустой, завершаем ввод
+    else
+        input :: inputStrings() // Добавляем строку в список и продолжаем ввод
+
+// Основная программа
+let main () =
+    // Ввод списка строк
+    let strings = inputStrings()
+
+    // Используем Seq.map для получения длин строк
+    let lengths = strings |> Seq.map (fun str -> str.Length)
+
+    // Преобразуем результат в список (если нужно)
+    let lengthsList = lengths |> List.ofSeq
+
+    // Выводим результат
+    printfn "Длины строк: %A" lengthsList
+
+// Запуск программы
+main()
