@@ -1,0 +1,44 @@
+open System
+
+// Функция для ввода списка строк по отдельности
+let rec inputStrings () =
+    printfn "Введите строку (или нажмите Enter для завершения):"
+    let input = Console.ReadLine() // Чтение ввода
+    if String.IsNullOrEmpty(input) then
+        [] // Если ввод пустой, завершаем ввод
+    else
+        input :: inputStrings() // Добавляем строку в список и продолжаем ввод
+
+// Функция для проверки, содержится ли цифра в строке
+let containsDigit digit (str: string) =
+    str.Contains(digit.ToString())
+
+// Основная программа
+let main () =
+    // Ввод заданной цифры
+    printfn "Введите цифру для поиска:"
+    let targetDigit = 
+        match Int32.TryParse(Console.ReadLine()) with
+        | true, digit when digit >= 0 && digit <= 9 -> digit // Проверяем, что это одна цифра
+        | _ -> 
+            printfn "Некорректный ввод. Используется цифра по умолчанию: 0."
+            0
+
+    // Ввод списка строк
+    let strings = inputStrings()
+
+    // Используем Seq.fold для накопления суммы длин строк, содержащих заданную цифру
+    let sum = 
+        strings 
+        |> Seq.fold (fun acc str ->
+            if containsDigit targetDigit str then
+                acc + str.Length // Добавляем длину строки к сумме, если цифра найдена
+            else
+                acc // Иначе оставляем сумму без изменений
+        ) 0 // Начальное значение аккумулятора — 0
+
+    // Выводим результат
+    printfn "Сумма длин строк, содержащих цифру %d: %d" targetDigit sum
+
+// Запуск программы
+main()
