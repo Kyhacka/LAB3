@@ -1,13 +1,18 @@
 open System
 
-// Функция для ввода списка строк по отдельности
-let rec inputStrings () =
-    printfn "Введите строку (или нажмите Enter для завершения):"
-    let input = Console.ReadLine() // Чтение ввода
-    if String.IsNullOrEmpty(input) then
-        [] // Если ввод пустой, завершаем ввод
-    else
-        input :: inputStrings() // Добавляем строку в список и продолжаем ввод
+// Функция для ввода строк до достижения заданного количества
+let inputStrings (count: int) =
+    // Ленивая последовательность для ввода строк
+    let rec readStrings (remaining: int) =
+        seq {
+            if remaining > 0 then
+                printfn "Введите строку (осталось ввести %d строк):" remaining
+                let input = Console.ReadLine()
+                if not (String.IsNullOrEmpty(input)) then
+                    yield input // Возвращаем строку, если она не пустая
+                    yield! readStrings (remaining - 1) // Продолжаем ввод
+        }
+    readStrings count // Запускаем последовательность
 
 // Функция для проверки, содержится ли цифра в строке
 let containsDigit digit (str: string) =
@@ -24,8 +29,17 @@ let main () =
             printfn "Некорректный ввод. Используется цифра по умолчанию: 0."
             0
 
-    // Ввод списка строк
-    let strings = inputStrings()
+    // Ввод количества строк
+    printfn "Введите количество строк:"
+    let count = 
+        match Int32.TryParse(Console.ReadLine()) with
+        | true, count when count > 0 -> count // Проверяем, что количество строк положительное
+        | _ -> 
+            printfn "Некорректный ввод. Используется значение по умолчанию: 3."
+            3
+
+    // Ввод строк с использованием ленивой последовательности
+    let strings = inputStrings count
 
     // Используем Seq.fold для накопления суммы длин строк, содержащих заданную цифру
     let sum = 
