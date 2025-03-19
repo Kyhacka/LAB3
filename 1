@@ -1,27 +1,45 @@
 open System
 
-// Функция для ввода списка строк по отдельности
-let rec inputStrings () =
-    printfn "Введите строку (или нажмите Enter для завершения):"
-    let input = Console.ReadLine() // Чтение ввода
-    if String.IsNullOrEmpty(input) then
-        [] // Если ввод пустой, завершаем ввод
-    else
-        input :: inputStrings() // Добавляем строку в список и продолжаем ввод
+// Функция для вычисления длин строк с использованием Seq.map
+let getStringLengths (strSeq: seq<string>) =
+    strSeq |> Seq.map (fun s -> s.Length) // Отложенное вычисление длин строк
 
-// Основная программа
-let main () =
-    // Ввод списка строк
-    let strings = inputStrings()
+// Функция для ввода строк до достижения заданного количества
+let inputStrings (count: int) =
+    // Используем mutable список для накопления строк
+    let mutable strings = []
+    let mutable remaining = count
 
-    // Используем Seq.map для получения длин строк
-    let lengths = strings |> Seq.map (fun str -> str.Length)
+    while remaining > 0 do
+        printfn "Введите строку (осталось ввести %d строк):" remaining
+        let input = Console.ReadLine()
+        strings <- input :: strings // Добавляем строку в список
+        remaining <- remaining - 1 // Уменьшаем счетчик оставшихся строк
 
-    // Преобразуем результат в список (если нужно)
+    List.rev strings // Возвращаем строки в правильном порядке
+
+[<EntryPoint>]
+let main argv =
+    // Ввод количества строк
+    printfn "Введите количество строк:"
+    let count = 
+        match Int32.TryParse(Console.ReadLine()) with
+        | true, count when count > 0 -> count // Проверяем, что количество строк положительное
+        | _ -> 
+            printfn "Некорректный ввод. Используется значение по умолчанию: 3."
+            3
+
+    // Ввод строк
+    let strings = inputStrings count
+
+    // Используем Seq.map для получения длин строк (отложенные вычисления)
+    let lengths = getStringLengths strings
+
+    // Преобразуем результат в список (выполняем вычисления)
     let lengthsList = lengths |> List.ofSeq
 
     // Выводим результат
+    printfn "Исходные строки: %A" strings
     printfn "Длины строк: %A" lengthsList
 
-// Запуск программы
-main()
+    0 // Код завершения программы
