@@ -18,16 +18,19 @@ let inputStrings (count: int) =
 
     List.rev strings // Возвращаем строки в правильном порядке
 
+// Функция для ввода числа с проверкой корректности
+let rec inputPositiveNumber prompt =
+    printfn "%s" prompt
+    match Int32.TryParse(Console.ReadLine()) with
+    | true, value when value > 0 -> value // Возвращаем число, если оно положительное
+    | _ -> 
+        printfn "Некорректный ввод. Пожалуйста, введите положительное число."
+        inputPositiveNumber prompt // Повторяем запрос
+
 [<EntryPoint>]
 let main argv =
-    // Ввод количества строк
-    printfn "Введите количество строк:"
-    let count = 
-        match Int32.TryParse(Console.ReadLine()) with
-        | true, count when count > 0 -> count // Проверяем, что количество строк положительное
-        | _ -> 
-            printfn "Некорректный ввод. Используется значение по умолчанию: 3."
-            3
+    // Ввод количества строк с проверкой корректности
+    let count = inputPositiveNumber "Введите количество строк (положительное число):"
 
     // Ввод строк
     let strings = inputStrings count
