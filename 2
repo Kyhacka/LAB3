@@ -15,12 +15,12 @@ let containsDigit digit (str: string) =
 
 // Функция для ввода числа с проверкой корректности
 let rec inputNumber prompt validate =
-    printfn "%s" prompt
-    match Int32.TryParse(Console.ReadLine()) with
-    | true, value when validate value -> value
+    printfn "%s" prompt // Выводим сообщение для пользователя
+    match Int32.TryParse(Console.ReadLine()) with // Пытаемся преобразовать ввод в число
+    | true, value when validate value -> value // Если ввод корректен и проходит проверку, возвращаем значение
     | _ -> 
-        printfn "Некорректный ввод. Пожалуйста, попробуйте снова."
-        inputNumber prompt validate
+        printfn "Некорректный ввод. Пожалуйста, попробуйте снова." // Сообщение об ошибке
+        inputNumber prompt validate // Повторяем запрос
 
 // Основная программа
 let main () =
@@ -28,13 +28,13 @@ let main () =
     let targetDigit = 
         inputNumber 
             "Введите цифру для поиска (от 0 до 9):" 
-            (fun x -> x >= 0 && x <= 9)
+            (fun x -> x >= 0 && x <= 9) // Проверка, что число является цифрой (от 0 до 9)
 
     // Ввод количества строк
     let count = 
         inputNumber 
             "Введите количество строк (положительное число):" 
-            (fun x -> x > 0)
+            (fun x -> x > 0) // Проверка, что число положительное
 
     // Ввод строк
     let strings = inputStrings count
