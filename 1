@@ -1,6 +1,6 @@
 open System
 
-// Функция с явным выводом для демонстрации ленивости
+
 let getStringLengths (strSeq: seq<string>) =
     strSeq |> Seq.map (fun s -> 
         printfn "[ВЫЧИСЛЕНИЕ] Обрабатываю строку: '%s'" s  // Это сработает только при реальном вычислении
