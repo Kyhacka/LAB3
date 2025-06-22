@@ -1,48 +1,47 @@
 open System
 
-// Функция для вычисления длин строк с использованием Seq.map
+// Функция с явным выводом для демонстрации ленивости
 let getStringLengths (strSeq: seq<string>) =
-    strSeq |> Seq.map (fun s -> s.Length) // Отложенное вычисление длин строк
+    strSeq |> Seq.map (fun s -> 
+        printfn "[ВЫЧИСЛЕНИЕ] Обрабатываю строку: '%s'" s  // Это сработает только при реальном вычислении
+        s.Length)
 
-// Функция для ввода строк до достижения заданного количества
 let inputStrings (count: int) =
-    // Используем mutable список для накопления строк
     let mutable strings = []
     let mutable remaining = count
 
     while remaining > 0 do
         printfn "Введите строку (осталось ввести %d строк):" remaining
         let input = Console.ReadLine()
-        strings <- input :: strings // Добавляем строку в список
-        remaining <- remaining - 1 // Уменьшаем счетчик оставшихся строк
+        strings <- input :: strings
+        remaining <- remaining - 1
 
-    List.rev strings // Возвращаем строки в правильном порядке
+    List.rev strings
 
-// Функция для ввода числа с проверкой корректности
 let rec inputPositiveNumber prompt =
     printfn "%s" prompt
     match Int32.TryParse(Console.ReadLine()) with
-    | true, value when value > 0 -> value // Возвращаем число, если оно положительное
+    | true, value when value > 0 -> value
     | _ -> 
         printfn "Некорректный ввод. Пожалуйста, введите положительное число."
-        inputPositiveNumber prompt // Повторяем запрос
+        inputPositiveNumber prompt
 
 [<EntryPoint>]
 let main argv =
-    // Ввод количества строк с проверкой корректности
     let count = inputPositiveNumber "Введите количество строк (положительное число):"
-
-    // Ввод строк
     let strings = inputStrings count
 
-    // Используем Seq.map для получения длин строк (отложенные вычисления)
-    let lengths = getStringLengths strings
+    printfn "\n[ЭТАП 1] Создаем отложенное вычисление (ничего не вычисляется!)"
+    let lengthsSeq = getStringLengths strings  // Здесь только создается "обещание" вычислить
+    
+    printfn "\n[ЭТАП 2] Отложенное вычисление создано, но сообщений выше нет"
+    printfn "         (значит, никакие строки еще не обрабатывались)\n"
 
-    // Преобразуем результат в список (выполняем вычисления)
-    let lengthsList = lengths |> List.ofSeq
-
-    // Выводим результат
+    printfn "[ЭТАП 3] Материализуем последовательность в список (вычисления происходят сейчас!):"
+    let lengthsList = lengthsSeq |> List.ofSeq  // Вот здесь реально вычисляются длины
+    
+    printfn "\n[ЭТАП 4] Результат:"
     printfn "Исходные строки: %A" strings
     printfn "Длины строк: %A" lengthsList
 
-    0 // Код завершения программы
+    0
