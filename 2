@@ -1,57 +1,72 @@
-open System
+namespace Test3;
 
-// Функция для ввода строк до достижения заданного количества
-let inputStrings (count: int) =
-    // Используем список для накопления строк
-    [
-        for i in 1 .. count do
-            printfn "Введите строку (осталось ввести %d строк):" (count - i + 1)
-            yield Console.ReadLine() // Возвращаем строку, даже если она пустая
-    ]
+public static class InputHelper
+{
+    public static double ReadPositiveDouble(string prompt)
+    {
+        double value;
+        do
+        {
+            Console.Write(prompt);
+        }
+        while (!double.TryParse(Console.ReadLine(), out value) || value <= 0);
 
-// Функция для проверки, содержится ли цифра в строке
-let containsDigit digit (str: string) =
-    str.Contains(digit.ToString())
+        return value;
+    }
+}
 
-// Функция для ввода числа с проверкой корректности
-let rec inputNumber prompt validate =
-    printfn "%s" prompt // Выводим сообщение для пользователя
-    match Int32.TryParse(Console.ReadLine()) with // Пытаемся преобразовать ввод в число
-    | true, value when validate value -> value // Если ввод корректен и проходит проверку, возвращаем значение
-    | _ -> 
-        printfn "Некорректный ввод. Пожалуйста, попробуйте снова." // Сообщение об ошибке
-        inputNumber prompt validate // Повторяем запрос
 
-// Основная программа
-let main () =
-    // Ввод заданной цифры
-    let targetDigit = 
-        inputNumber 
-            "Введите цифру для поиска (от 0 до 9):" 
-            (fun x -> x >= 0 && x <= 9) // Проверка, что число является цифрой (от 0 до 9)
+public class RightTriangle
+{
+    public double CathetusA { get; }
+    public double CathetusB { get; }
 
-    // Ввод количества строк
-    let count = 
-        inputNumber 
-            "Введите количество строк (положительное число):" 
-            (fun x -> x > 0) // Проверка, что число положительное
+    public RightTriangle(double a, double b)
+    {
+        if (a <= 0 || b <= 0)
+            throw new ArgumentException("Катеты должны быть положительными!");
 
-    // Ввод строк
-    let strings = inputStrings count
+        CathetusA = a;
+        CathetusB = b;
+    }
 
-    // Используем Seq.fold для накопления суммы длин строк, содержащих заданную цифру
-    let sum = 
-        strings 
-        |> Seq.fold (fun acc str ->
-            if containsDigit targetDigit str then
-                acc + str.Length // Добавляем длину строки к сумме, если цифра найдена
-            else
-                acc // Иначе оставляем сумму без изменений
-        ) 0 // Начальное значение аккумулятора — 0
+    public static bool operator true(RightTriangle triangle) =>
+        triangle.CathetusA > 0 && triangle.CathetusB > 0;
 
-    // Выводим результат
-    printfn "Исходные строки: %A" strings
-    printfn "Сумма длин строк, содержащих цифру %d: %d" targetDigit sum
+    public static bool operator false(RightTriangle triangle) =>
+        triangle.CathetusA <= 0 || triangle.CathetusB <= 0;
 
-// Запуск программы
-main()
+    public static implicit operator double(RightTriangle triangle) =>
+        triangle.CathetusA * triangle.CathetusB / 2;
+
+    public override string ToString() =>
+        $"Прямоугольный треугольник с катетами {CathetusA} и {CathetusB}";
+}
+
+public class Program
+{
+    static void Main()
+    {
+        try
+        {
+            Console.WriteLine("Введите параметры прямоугольного треугольника:");
+            double a = InputHelper.ReadPositiveDouble("Длина первого катета: ");
+            double b = InputHelper.ReadPositiveDouble("Длина второго катета: ");
+
+            RightTriangle triangle = new(a, b);
+
+            Console.WriteLine($"\n{triangle}");
+            Console.WriteLine($"Площадь треугольника: {(double)triangle}");
+
+            if (triangle)
+                Console.WriteLine("Треугольник валиден");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
+
+        Console.WriteLine("\nНажмите любую клавишу для выхода...");
+        Console.ReadKey();
+    }
+}
